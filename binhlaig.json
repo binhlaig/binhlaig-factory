@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.binhlaig.com/schema.json",
+  "framework": "next",
+  "srcDir": false,
+  "aliases": {
+    "components": "@/components",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "utils": "@/lib/utils",
+    "hooks": "@/hooks"
+  },
+  "registry": "https://ui.binhlaig.com/r",
+  "installer": "native"
+}
