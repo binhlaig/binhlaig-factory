@@ -1,6 +1,3 @@
-
-
-
 "use client";
 
 import Link from "next/link";
@@ -9,7 +6,7 @@ import { useEffect } from "react";
 import {
   LayoutDashboard, Package, Settings2, X, Factory,
   PackageOpen, Warehouse, Cog, Truck, PackageCheck, type LucideIcon,
-  SquareLibrary,
+  SquareLibrary, ClipboardList, Users,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -22,15 +19,21 @@ type FactorySidebarProps = {
 
 type SidebarItem = { title: string; href: string; icon: LucideIcon };
 
-const sidebarItems: SidebarItem[] = [
+const factoryItems: SidebarItem[] = [
   { title: "Overview", href: "/factory", icon: LayoutDashboard },
   { title: "Receiving", href: "/factory/receiving", icon: PackageOpen },
   { title: "Warehouse", href: "/factory/warehouse", icon: Warehouse },
   { title: "Production", href: "/factory/production", icon: Cog },
   { title: "Packing", href: "/factory/packing", icon: Package },
   { title: "Dispatch", href: "/factory/dispatch", icon: Truck },
+];
+
+const officeItems: SidebarItem[] = [
+  { title: "Orders", href: "/factory/office/orders", icon: ClipboardList },
+  { title: "Customers", href: "/factory/office/customers", icon: Users },
   { title: "Costing", href: "/factory/costing", icon: PackageCheck },
-  { title: "Library", href: "/factory/costing/products", icon: SquareLibrary }
+  { title: "Costing စာရင်း", href: "/factory/costing/products", icon: SquareLibrary },
+  { title: "Packing စာရင်း", href: "/factory/office/packing", icon: Package },
 ];
 const settingsItem: SidebarItem = {
   title: "Shop Settings", href: "/dashboard/settings", icon: Settings2,
@@ -47,7 +50,7 @@ export function FactorySidebar({ open, collapsed, onClose }: FactorySidebarProps
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [open, onClose]);
   // Only the most specific matching route is highlighted.
-  const activeHref = [...sidebarItems, settingsItem]
+  const activeHref = [...factoryItems, ...officeItems, settingsItem]
     .filter(({ href }) => pathname === href || (href !== "/factory" && pathname.startsWith(`${href}/`)))
     .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
@@ -94,8 +97,18 @@ export function FactorySidebar({ open, collapsed, onClose }: FactorySidebarProps
           <button type="button" aria-label="Close sidebar" onClick={onClose} className="grid size-10 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 lg:hidden"><X size={19} aria-hidden="true" /></button>
         </div>
         <nav aria-label="Main menu" className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden p-3">
-          <p className={`mb-3 px-2.5 pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400 ${collapsed ? "lg:hidden" : ""}`}>Main menu</p>
-          {sidebarItems.map(renderItem)}
+          <div role="group" aria-label="Factory" className="space-y-1">
+            <p className={`px-2.5 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ${collapsed ? "lg:hidden" : ""}`}>
+              Factory
+            </p>
+            {factoryItems.map(renderItem)}
+          </div>
+          <div role="group" aria-label="Office" className="mt-3 space-y-1 border-t border-slate-200 pt-3 dark:border-white/10">
+            <p className={`px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ${collapsed ? "lg:hidden" : ""}`}>
+              Office
+            </p>
+            {officeItems.map(renderItem)}
+          </div>
         </nav>
         <div className="shrink-0 border-t border-slate-200 p-3 dark:border-white/10">
           {renderItem(settingsItem)}

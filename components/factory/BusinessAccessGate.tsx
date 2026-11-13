@@ -1,10 +1,10 @@
-
 "use client";
 
 import { LoadingScreen } from "@/components/loading-screen";
 
 import {
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -55,6 +55,11 @@ export function BusinessAccessGate({
 }: BusinessAccessGateProps) {
   const { status, data: session, update } = useSession();
 
+  const updateSession = useRef(update);
+  useEffect(() => {
+    updateSession.current = update;
+  }, [update]);
+
   const router = useRouter();
   const params = useSearchParams();
 
@@ -63,6 +68,7 @@ export function BusinessAccessGate({
     params.get("callbackUrl");
 
   const [attempt, setAttempt] = useState(0);
+  const [failureDetail, setFailureDetail] = useState("");
 
   const [access, setAccess] =
     useState<BusinessAccess | null>(null);
@@ -100,7 +106,7 @@ export function BusinessAccessGate({
    * not trigger another check.
    */
   useEffect(() => {
-    if (status === "loading") {
+    if (!entry && status === "loading") {
       return;
     }
 
@@ -108,14 +114,28 @@ export function BusinessAccessGate({
     const controller = new AbortController();
 
     async function check() {
-      const result = await loadBusinessAccess(
-        fetch,
-        controller.signal
-      );
+      let responseStatus: number | undefined;
+      const result = await loadBusinessAccess(async (input, init) => {
+        const response = await fetch(input, init);
+        responseStatus = response.status;
+        return response;
+      }, controller.signal);
 
-      if (!active || controller.signal.aborted) {
-        return;
+      if (!active || controller.signal.aborted) return;
+
+      if (entry && result.kind === "ready") {
+        const destination = destinationForBusinessType(result.businessType, callback);
+        if (destination) {
+          window.location.replace(destination);
+          return;
+        }
       }
+
+      setFailureDetail(result.kind === "error"
+        ? responseStatus === undefined
+          ? "Business type API မှ response မရရှိပါ။"
+          : `GET /api/auth/business-type · HTTP ${responseStatus}`
+        : "");
 
       if (result.kind === "unauthenticated") {
         clearPosSession();
@@ -141,9 +161,11 @@ export function BusinessAccessGate({
         status === "unauthenticated" &&
         result.kind === "ready"
       ) {
-        await update();
+        const restored = await updateSession.current().catch(() => null);
 
         if (active) {
+          if (restored) return;
+          setFailureDetail("Browser session ကို ပြန်လည်ရယူ၍ မရပါ။");
           setAccess({ kind: "error" });
           setCheckedIdentity(identity);
         }
@@ -157,16 +179,14 @@ export function BusinessAccessGate({
       if (
         result.kind === "ready" &&
         (
-          entry ||
-          (
-            area === "dashboard" &&
-            result.businessType === "FACTORY"
-          )
+          !entry &&
+          area === "dashboard" &&
+          result.businessType === "FACTORY"
         )
       ) {
         const destination = destinationForBusinessType(
           result.businessType,
-          entry ? callback : null
+          null
         );
 
         if (destination) {
@@ -182,17 +202,17 @@ export function BusinessAccessGate({
       controller.abort();
     };
   }, [
-    status === "loading" ? "loading" : status,
+    status,
     identity,
     attempt,
     router,
     entry,
     callback,
-    update,
     area,
   ]);
 
   function retry() {
+    setFailureDetail("");
     setAccess(null);
     setAttempt((value) => value + 1);
   }
@@ -260,11 +280,15 @@ export function BusinessAccessGate({
 
         <p className="mt-3 text-sm text-muted-foreground">
           {isError
-            ? "Backend ကို ဆက်သွယ်၍ မရပါ။ ပြန်လည်ကြိုးစားပါ။"
+            ? "ဝင်ရောက်ခွင့် စစ်ဆေးမှု မအောင်မြင်ပါ။ ပြန်လည်ကြိုးစားပါ။"
             : unknown
               ? "Account ၏ Business Type ကို Official / Super Admin ထံ စစ်ဆေးပေးရန် ဆက်သွယ်ပါ။"
               : "Factory account ဖြင့်သာ ဝင်ရောက်နိုင်ပါသည်။"}
         </p>
+
+        {isError && failureDetail && (
+          <p className="mt-2 text-sm text-muted-foreground">{failureDetail}</p>
+        )}
 
         {(isError || unknown) && (
           <button
