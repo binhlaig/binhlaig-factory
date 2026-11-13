@@ -8,9 +8,10 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import {
   LayoutDashboard, Package, Settings2, X, Factory,
-  PackageOpen, Warehouse, Cog, Truck,PackageCheck, type LucideIcon,
+  PackageOpen, Warehouse, Cog, Truck, PackageCheck, type LucideIcon,
   SquareLibrary,
 } from "lucide-react";
+import Image from "next/image";
 
 type FactorySidebarProps = {
   open: boolean;
@@ -78,7 +79,13 @@ export function FactorySidebar({ open, collapsed, onClose }: FactorySidebarProps
       <aside aria-label="Dashboard sidebar" className={`fixed bottom-4 left-4 top-[94px] z-[70] flex w-[270px] flex-col rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-900/5 transition-[width,transform] duration-300 ease-in-out motion-reduce:transition-none dark:border-white/10 dark:bg-slate-950 lg:z-40 lg:translate-x-0 ${collapsed ? "lg:w-[76px]" : "lg:w-[220px]"} ${open ? "translate-x-0" : "-translate-x-[calc(100%+2rem)]"}`}>
         <div className={`flex h-16 shrink-0 items-center justify-between border-b border-slate-200 px-4 dark:border-white/10 ${collapsed ? "lg:justify-center lg:px-2" : ""}`}>
           <Link href="/factory" onClick={onClose} aria-label="Binhlaig factory dashboard" className="flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-blue-500">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-900 text-white shadow-sm dark:bg-blue-500/15 dark:text-blue-300"><Factory size={21} strokeWidth={1.75} aria-hidden="true" /></span>
+
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-900 ">
+           <Image src="/binhlaig-logo.png" width={48} height={48} alt="Binhlaig" />
+            
+            </span>
+            
+
             <span className={`min-w-0 ${collapsed ? "lg:hidden" : ""}`}>
               <span className="block whitespace-nowrap text-sm font-bold text-slate-950 dark:text-white">Binhlaig Factory</span>
               <span className="mt-0.5 block whitespace-nowrap text-[11px] text-slate-500 dark:text-slate-400">Factory Dashboard</span>

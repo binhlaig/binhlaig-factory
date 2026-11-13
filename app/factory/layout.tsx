@@ -15,7 +15,8 @@ export default function FactoryLayout({ children }: { children: ReactNode }) {
 
      
         <BusinessAccessGate>
-          <FactoryShell>{children}</FactoryShell>
+          <FactoryShell>
+            {children}</FactoryShell>
         </BusinessAccessGate>
     
     </Suspense>
