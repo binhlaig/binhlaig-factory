@@ -34,6 +34,7 @@ const officeItems: SidebarItem[] = [
   { title: "Costing", href: "/factory/costing", icon: PackageCheck },
   { title: "Costing စာရင်း", href: "/factory/costing/products", icon: SquareLibrary },
   { title: "Packing စာရင်း", href: "/factory/office/packing", icon: Package },
+  { title: "ဝင်ငွေ / ထွက်ငွေ", href: "/factory/office/cashbook", icon: ClipboardList },
 ];
 const settingsItem: SidebarItem = {
   title: "Shop Settings", href: "/dashboard/settings", icon: Settings2,
